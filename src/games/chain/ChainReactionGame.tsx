@@ -8,21 +8,20 @@ import { dailyPuzzles } from "./data/puzzles";
 import {
   validateChain,
   findShortestChain,
-} from "./connections";
+} from "./engine/connections";
 
-import "./App.css";
+type Props = {
+  onBack: () => void;
+};
 
-function App() {
+function ChainReactionGame({ onBack }: Props) {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const puzzle = dailyPuzzles[0];
 
   const [entries, setEntries] = useState<string[]>([""]);
-
-  const [validationMessage, setValidationMessage] = useState<
-    string | null
-  >(null);
-
+  const [validationMessage, setValidationMessage] =
+    useState<string | null>(null);
   const [score, setScore] = useState<number | null>(null);
 
   function updateEntry(index: number, value: string) {
@@ -39,7 +38,6 @@ function App() {
   function addWord() {
     setValidationMessage(null);
     setScore(null);
-
     setEntries((previous) => [...previous, ""]);
   }
 
@@ -48,10 +46,7 @@ function App() {
     setScore(null);
 
     setEntries((previous) => {
-      if (previous.length === 1) {
-        return [""];
-      }
-
+      if (previous.length === 1) return [""];
       return previous.filter((_, i) => i !== index);
     });
   }
@@ -71,7 +66,6 @@ function App() {
       puzzle.endWord,
     ];
 
-    // First, check whether the chain is valid
     const result = validateChain(fullChain);
 
     if (!result.valid) {
@@ -80,7 +74,6 @@ function App() {
       return;
     }
 
-    // Find the shortest possible chain
     const shortestChain = findShortestChain(
       puzzle.startWord,
       puzzle.endWord
@@ -94,11 +87,9 @@ function App() {
       return;
     }
 
-    // Count only the missing words, not the endpoints
     const optimalWordCount = shortestChain.length - 2;
     const playerWordCount = completedEntries.length;
 
-    // Subtract 20 points for every extra word
     const extraWords = Math.max(
       0,
       playerWordCount - optimalWordCount
@@ -120,16 +111,6 @@ function App() {
         `Valid chain! You used ${playerWordCount} words. The shortest chain uses ${optimalWordCount}.`
       );
     }
-
-    console.log("Your chain:", fullChain);
-    console.log("Shortest chain:", shortestChain);
-    console.log("Words used:", playerWordCount);
-    console.log("Optimal words:", optimalWordCount);
-    console.log("Score:", calculatedScore);
-  }
-
-  function returnHome() {
-    setIsPlaying(false);
   }
 
   function startGame() {
@@ -149,18 +130,24 @@ function App() {
           onAddWord={addWord}
           onRemoveWord={removeWord}
           onSubmit={submitChain}
-          onBack={returnHome}
+          onBack={() => setIsPlaying(false)}
           validationMessage={validationMessage}
           score={score}
         />
       ) : (
-        <HomeScreen
-          puzzle={puzzle}
-          onPlay={startGame}
-        />
+        <>
+          <button onClick={onBack}>
+            Back to games
+          </button>
+
+          <HomeScreen
+            puzzle={puzzle}
+            onPlay={startGame}
+          />
+        </>
       )}
     </div>
   );
 }
 
-export default App;
+export default ChainReactionGame;

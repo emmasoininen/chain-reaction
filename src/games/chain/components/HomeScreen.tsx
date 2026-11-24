@@ -43,7 +43,7 @@ function HomeScreen({ puzzle, onPlay }: HomeScreenProps) {
         </div>
 
         <div className="puzzle-details">
-          <span>{puzzle.missingWords} missing words</span>
+        <span>{puzzle.difficulty} difficulty</span>
           <span className="detail-divider">·</span>
           <span>{puzzle.difficulty}</span>
         </div>
